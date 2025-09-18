@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Welcome to Organic Farming</h1>
+  <p>Manage your farm, track your crops, and grow sustainably.</p>
+  <a href="{% url 'register' %}">
+    <button>Register as a Farmer</button>
+  </a>
+  <a href="{% url 'login' %}">
+    <button style="margin-top: 1rem;">Log In</button>
+  </a>
+{% endblock %}
