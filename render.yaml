@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: organic-farming-app
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn core.wsgi
+    autoDeploy: true
+    envVars:
+      - key: DEBUG
+        value: False
+      - key: SECRET_KEY
+        value: +rudht9%+=_z6gil+!p996j9j-0*y=il+tf@4#u8qo=$qo-n%s
