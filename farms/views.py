@@ -17,6 +17,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework import status
 from .forms import CustomUserCreationForm
 from django.utils.encoding import force_bytes
+from django.conf import settings
 
 
 
@@ -37,7 +38,11 @@ def register_view(request):
 
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             token = default_token_generator.make_token(user)
-            domain = get_current_site(request).domain
+
+            if settings.DEBUG:
+                domain = get_current_site(request).domain
+            else:
+                domain = "organic-farming-app.onrender.com"    
             link = f"http://{domain}/activate/{uid}/{token}/"
 
             send_mail(
