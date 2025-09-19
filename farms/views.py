@@ -28,35 +28,68 @@ def home_view(request):
     return render(request, 'home.html')
 
 # 🧑‍🌾 Farmer Registration (Template + Email Verification)
+import logging
+logger = logging.getLogger(__name__)
+
+import logging
+logger = logging.getLogger(__name__)
+
+from django.conf import settings
+from django.core.mail import send_mail
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.contrib.auth.tokens import default_token_generator
+from django.http import HttpResponse
+from django.shortcuts import render
+from .forms import CustomUserCreationForm
+import logging
+
+logger = logging.getLogger(__name__)
+
 def register_view(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.is_active = False
-            user.save()
+            try:
+                user = form.save(commit=False)
+                user.is_active = False
+                user.email = form.cleaned_data.get('email')
+                user.save()
 
-            uid = urlsafe_base64_encode(force_bytes(user.pk))
-            token = default_token_generator.make_token(user)
+                uid = urlsafe_base64_encode(force_bytes(user.pk))
+                token = default_token_generator.make_token(user)
 
-            if settings.DEBUG:
-                domain = get_current_site(request).domain
-            else:
-                domain = "organic-farming-app.onrender.com"    
-            link = f"http://{domain}/activate/{uid}/{token}/"
+                # 🌍 Use localhost in DEBUG, production domain otherwise
+                if settings.DEBUG==True:
+                    domain = 'localhost:8000'
+                else:
+                    domain = 'organic-farming-app.onrender.com'
 
-            send_mail(
-                subject='Verify your email',
-                message=f'Hello, {user.username}, Welcome to Organic Farming! "Cultivating Tomorrow, Organically"\nClick the link to verify your account: {link}',
-                from_email='noreply@yourdomain.com',
-                recipient_list=[user.email],
-                fail_silently=False,
-            )
+                link = f"https://{domain}/activate/{uid}/{token}/"
 
-            return render(request, 'email_sent.html', {'email': user.email})
+                # 📧 Email logic based on DEBUG
+                send_mail(
+                        subject='Verify your email',
+                        message=f'Hello, {user.username}, Welcome to Organic Farming!\nClick to verify: {link}',
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        recipient_list=[user.email],
+                        fail_silently=False,
+                    )
+
+                return render(request, 'email_sent.html', {'email': user.email})
+            except Exception as e:
+                logger.error(f"Registration error: {e}")
+                return HttpResponse("Something went wrong", status=500)
+        else:
+            print("Form is NOT valid")
+            print(form.errors.as_data())
     else:
         form = CustomUserCreationForm()
+
     return render(request, 'register.html', {'form': form})
+
+
 
 # 🔐 Login Page
 def login_view(request):
@@ -71,9 +104,11 @@ def login_view(request):
     return render(request, 'login.html', {'form': form})
 
 # 📧 Email Verification via Template
+
+from django.utils.encoding import force_str
 def activate_account(request, uidb64, token):
     try:
-        uid = urlsafe_base64_decode(uidb64).decode()
+        uid = force_str(urlsafe_base64_decode(uidb64))
         user = User.objects.get(pk=uid)
     except Exception:
         user = None
