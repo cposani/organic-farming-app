@@ -31,8 +31,7 @@ def home_view(request):
 import logging
 logger = logging.getLogger(__name__)
 
-import logging
-logger = logging.getLogger(__name__)
+
 
 from django.conf import settings
 from django.core.mail import send_mail
@@ -62,11 +61,13 @@ def register_view(request):
 
                 # 🌍 Use localhost in DEBUG, production domain otherwise
                 if settings.DEBUG==True:
+                    protocol = 'http'
                     domain = 'localhost:8000'
                 else:
+                    protocol = 'https'
                     domain = 'organic-farming-app.onrender.com'
 
-                link = f"https://{domain}/activate/{uid}/{token}/"
+                link = f"{protocol}://{domain}/activate/{uid}/{token}/"
 
                 # 📧 Email logic based on DEBUG
                 send_mail(
