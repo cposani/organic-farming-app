@@ -5,8 +5,11 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn core.wsgi
     autoDeploy: true
+    postDeployCommand: python manage.py migrate
     envVars:
       - key: DEBUG
         value: False
       - key: SECRET_KEY
-        value: +rudht9%+=_z6gil+!p996j9j-0*y=il+tf@4#u8qo=$qo-n%s
+        value: mq&e99r6acg2y4w4x!q+t4^a@)8v%!_3%gkjzu#j3^#%-&_w%w
+      - key: DATABASE_URL
+        value: postgresql://farming_db_user:VL8EWdNmzDeWNBrGRVY4uxOBXTEudiv0@dpg-d3a06hf5r7bs73bar3s0-a/farming_db
