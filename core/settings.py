@@ -31,6 +31,12 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 DEBUG = False
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'organic-farming-app.onrender.com']
 
+from decouple import config
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://organic-farming-app.onrender.com'
+]
+CSRF_COOKIE_SECURE = True
 
 
 # Application definition
@@ -181,3 +187,15 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 
 
+LOGGING = {
+    'version': 1,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',
+    },
+}
